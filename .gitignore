@@ -1,0 +1,36 @@
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environment secrets
+.env
+.env.local
+.env.*.local
+
+# Database / SQLite / Temp
+*.db
+*.sqlite3
+temp_uploads/
+*.tmp
+
+# Logs
+*.log
+logs/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE / OS
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini

@@ -1,0 +1,45 @@
+services:
+  - type: worker
+    name: humatron-telegram-bot
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m bot.main
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.3
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: humatron-db
+          property: connectionString
+      - key: HUMATRON_API_BASE_URL
+        value: https://humatron.me
+      - key: HUMATRON_SECRET_KEY
+        generateValue: true
+
+  - type: web
+    name: humatron-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn api.app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.3
+      - key: DATABASE_URL
+        fromDatabase:
+          name: humatron-db
+          property: connectionString
+      - key: HUMATRON_API_BASE_URL
+        value: https://humatron.me
+      - key: HUMATRON_SECRET_KEY
+        fromService:
+          name: humatron-telegram-bot
+          type: worker
+          envVarKey: HUMATRON_SECRET_KEY
+
+databases:
+  - name: humatron-db
+    databaseName: humatron_db
+    user: humatron
+    plan: free
