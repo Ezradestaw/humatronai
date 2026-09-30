@@ -2,20 +2,19 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from core.services.subscription_service import PLAN_LIMITS
 
 def get_subscription_keyboard() -> InlineKeyboardMarkup:
-    student_price = PLAN_LIMITS["student"]["price_etb"]
-    pro_price_usd = PLAN_LIMITS["pro"]["price_usd"]
-    pro_price_etb = PLAN_LIMITS["pro"]["price_etb"]
+    student_usd = PLAN_LIMITS["student"]["price_usd"]
+    pro_usd = PLAN_LIMITS["pro"]["price_usd"]
 
     buttons = [
         [
             InlineKeyboardButton(
-                text=f"🎓 Student Plan ({student_price:.0f} ETB / $5)",
+                text=f"🎓 Student Plan (${student_usd:.0f} USDT/mo - 50 files)",
                 callback_data="sub_choose_student"
             )
         ],
         [
             InlineKeyboardButton(
-                text=f"🚀 Pro Plan (${pro_price_usd:.0f} / {pro_price_etb:.0f} ETB)",
+                text=f"🚀 Pro Plan (${pro_usd:.0f} USDT/mo - 200 files)",
                 callback_data="sub_choose_pro"
             )
         ],
@@ -25,16 +24,22 @@ def get_subscription_keyboard() -> InlineKeyboardMarkup:
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
-def get_payment_method_keyboard(tier: str) -> InlineKeyboardMarkup:
+def get_payment_order_keyboard(tx_ref: str) -> InlineKeyboardMarkup:
     buttons = [
         [
-            InlineKeyboardButton(text="📱 Pay with Telebirr (ETB)", callback_data=f"pay_telebirr_{tier}")
+            InlineKeyboardButton(text="📤 Submit Payment Proof", callback_data=f"submit_proof_{tx_ref}")
         ],
         [
-            InlineKeyboardButton(text="🟡 Pay with Binance Pay (USDT/USD)", callback_data=f"pay_binance_{tier}")
-        ],
+            InlineKeyboardButton(text="« Back to Plans", callback_data="menu_subscription")
+        ]
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+def get_admin_payment_approval_keyboard(tx_ref: str) -> InlineKeyboardMarkup:
+    buttons = [
         [
-            InlineKeyboardButton(text="« Back", callback_data="menu_subscription")
+            InlineKeyboardButton(text="✅ Approve Payment", callback_data=f"admin_pay_approve_{tx_ref}"),
+            InlineKeyboardButton(text="❌ Reject Payment", callback_data=f"admin_pay_reject_{tx_ref}")
         ]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)

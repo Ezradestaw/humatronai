@@ -1,7 +1,7 @@
 import pytest
 from core.models import User, SubscriptionTier
 from core.services.subscription_service import SubscriptionService, PLAN_LIMITS
-from core.services.payment_service import PaymentService
+from core.services.payment_service import PaymentService, BINANCE_RECIPIENT_NAME
 
 @pytest.mark.asyncio
 async def test_subscription_creation_and_quota(db_session):
@@ -45,43 +45,46 @@ async def test_subscription_upgrade(db_session):
     assert dashboard["limit"] == 50
 
 @pytest.mark.asyncio
-async def test_payment_initiation_and_completion(db_session):
+async def test_binance_manual_payment_flow(db_session):
     user = User()
     db_session.add(user)
     await db_session.commit()
 
-    # Telebirr order
-    telebirr_order = await PaymentService.initiate_subscription_payment(
-        session=db_session,
-        user_id=user.id,
-        plan_tier_str="student",
-        provider_name="telebirr"
-    )
-    assert telebirr_order["provider"] == "telebirr"
-    assert telebirr_order["currency"] == "ETB"
-    assert telebirr_order["amount"] == 500.0
-    assert "ref" in telebirr_order["checkout_url"]
-
-    # Binance Pay order
-    binance_order = await PaymentService.initiate_subscription_payment(
+    # 1. Initiate Binance payment order
+    order = await PaymentService.initiate_subscription_payment(
         session=db_session,
         user_id=user.id,
         plan_tier_str="pro",
         provider_name="binance_pay"
     )
-    assert binance_order["provider"] == "binance_pay"
-    assert binance_order["currency"] == "USD"
-    assert binance_order["amount"] == 50.0
+    assert order["provider"] == "binance_pay"
+    assert order["currency"] == "USDT"
+    assert order["amount"] == 50.0
+    assert order["recipient_name"] == BINANCE_RECIPIENT_NAME
+    assert "HUMA-" in order["transaction_ref"]
 
-    # Complete payment
-    success, msg = await PaymentService.complete_payment(
+    tx_ref = order["transaction_ref"]
+
+    # 2. User submits payment proof (TxID)
+    ok_proof, msg_proof, tx = await PaymentService.submit_payment_proof(
         session=db_session,
-        transaction_ref=binance_order["transaction_ref"],
+        transaction_ref=tx_ref,
+        proof_text="Binance TxID: 88472910394812"
+    )
+    assert ok_proof is True
+    assert tx.status == "pending_approval"
+    assert "88472910394812" in tx.proof_details
+
+    # 3. Admin approves payment
+    ok_approve, msg_approve, tx_app = await PaymentService.approve_manual_payment(
+        session=db_session,
+        transaction_ref=tx_ref,
         plan_tier=SubscriptionTier.PRO
     )
-    assert success is True
-    
-    # Confirm user plan is now PRO
+    assert ok_approve is True
+    assert tx_app.status == "success"
+
+    # 4. Confirm user plan is now PRO
     dashboard = await SubscriptionService.get_usage_dashboard(db_session, user.id)
     assert dashboard["plan_tier"] == SubscriptionTier.PRO.value
     assert dashboard["limit"] == 200

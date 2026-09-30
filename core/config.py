@@ -46,6 +46,16 @@ class Settings(BaseSettings):
     )
 
     @property
+    def async_database_url(self) -> str:
+        """Ensure connection string uses postgresql+asyncpg for SQLAlchemy async."""
+        url = self.database_url
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql+asyncpg://", 1)
+        elif url.startswith("postgresql://") and not url.startswith("postgresql+asyncpg://"):
+            url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return url
+
+    @property
     def admin_telegram_ids(self) -> List[int]:
         if not self.admin_telegram_ids_raw:
             return []

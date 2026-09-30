@@ -47,11 +47,12 @@ The architecture maintains the Humatron website as the primary web application w
 3. **📊 Live Usage Dashboard**:
    - Visual progress bar showing consumed vs. remaining monthly document quotas.
    - Renewal and reset schedule display.
-4. **💳 Subscriptions & Payments**:
+4. **💳 Subscriptions & Binance Pay**:
    - **Free Plan**: 10 files / month.
-   - **Student Plan**: 50 files / month ($5 / 500 ETB).
-   - **Pro Plan**: 200 files / month ($50 USD / 5,000 ETB).
-   - Provider abstraction with support for **Telebirr** (domestic Ethiopian Birr) and **Binance Pay** (international cryptocurrency/USDT).
+   - **Student Plan**: 50 files / month ($5 USDT).
+   - **Pro Plan**: 200 files / month ($50 USDT).
+   - **Binance Pay Manual Verification**: Bot displays the official Binance QR code (recipient: `Burton Knick rZXe`). Users submit their Transaction ID (TxID) or payment screenshot directly in the bot. Administrators review submissions and approve or reject them with a single tap in Telegram.
+   - **Immediate Activation**: Once an admin taps "Approve", the user is instantly credited with their new plan and receives an alert in Telegram.
 5. **🎓 Student Discount Program**:
    - Academic email verification for accredited university domains (`.edu`, `.edu.et`, `.ac.*`).
    - One-time verification code workflow that automatically activates the student discount tier.

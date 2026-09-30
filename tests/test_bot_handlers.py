@@ -4,7 +4,8 @@ from bot.keyboards import (
     get_account_keyboard,
     get_pdf_tools_keyboard,
     get_subscription_keyboard,
-    get_payment_method_keyboard,
+    get_payment_order_keyboard,
+    get_admin_payment_approval_keyboard,
     get_student_keyboard,
     get_help_keyboard,
     get_settings_keyboard,
@@ -35,10 +36,14 @@ def test_keyboards_structure():
     assert any("Student Plan" in btn.text for row in sub_kb.inline_keyboard for btn in row)
     assert any("Pro Plan" in btn.text for row in sub_kb.inline_keyboard for btn in row)
 
-    # Payment keyboard
-    pay_kb = get_payment_method_keyboard("pro")
-    assert any("Telebirr" in btn.text for row in pay_kb.inline_keyboard for btn in row)
-    assert any("Binance Pay" in btn.text for row in pay_kb.inline_keyboard for btn in row)
+    # Payment order keyboard
+    order_kb = get_payment_order_keyboard("HUMA-12345")
+    assert any("Submit Payment Proof" in btn.text for row in order_kb.inline_keyboard for btn in row)
+
+    # Admin approval keyboard
+    admin_pay_kb = get_admin_payment_approval_keyboard("HUMA-12345")
+    assert any("Approve Payment" in btn.text for row in admin_pay_kb.inline_keyboard for btn in row)
+    assert any("Reject Payment" in btn.text for row in admin_pay_kb.inline_keyboard for btn in row)
 
 def test_admin_authorization():
     admin_user = User(is_admin=True)

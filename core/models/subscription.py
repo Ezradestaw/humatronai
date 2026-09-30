@@ -40,8 +40,10 @@ class PaymentTransaction(Base):
     provider = Column(String(50), nullable=False) # e.g. "telebirr", "binance_pay", "card"
     transaction_reference = Column(String(150), unique=True, nullable=False, index=True)
     amount = Column(Numeric(10, 2), nullable=False)
-    currency = Column(String(10), default="USD", nullable=False) # "USD", "ETB", "USDT"
-    status = Column(String(50), default="pending", nullable=False) # "pending", "success", "failed"
+    currency = Column(String(10), default="USDT", nullable=False) # "USDT", "USD"
+    status = Column(String(50), default="pending", nullable=False) # "pending", "pending_approval", "success", "rejected"
+    proof_details = Column(String(500), nullable=True) # Binance TxID or user notes
+    proof_image_file_id = Column(String(255), nullable=True) # Telegram file_id if screenshot submitted
     created_at = Column(DateTime(timezone=True), default=utc_now, nullable=False)
 
     subscription = relationship("Subscription", back_populates="payments")
